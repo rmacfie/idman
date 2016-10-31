@@ -1,4 +1,4 @@
-import { RouteContext } from "../routing";
+import { RouteTable } from "../framework";
 
 export interface PingResult {
   status: string;
@@ -6,19 +6,12 @@ export interface PingResult {
   timestamp: Date;
 }
 
-export async function handle(ctx: RouteContext): Promise<PingResult> {
-  return {
-    status: "OK",
-    version: "0.0.0",
-    timestamp: new Date(),
-  };
+export default function (routes: RouteTable) {
+  routes.mapResource("GET", "/api/ping", async (ctx): Promise<PingResult> => {
+    return {
+      status: "OK",
+      version: "0.0.0",
+      timestamp: new Date(),
+    };
+  });
 }
-
-// export const route = {
-//   method: "GET",
-//   path: "/api/ping",
-//   handle: async (ctx: RouteContext) => {
-
-//   }
-// };
-

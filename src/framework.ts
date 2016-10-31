@@ -20,6 +20,8 @@ export interface RouteContext {
   response: Response;
 }
 
+export type RoutePath = string | RegExp;
+
 export interface RouteHandler {
   (ctx: RouteContext): Promise<any>;
 }
@@ -28,10 +30,8 @@ export interface RouteResourceHandler<TRequestBody, TResponseBody> {
   (ctx: RouteContext, requestBody?: TRequestBody): Promise<TResponseBody>;
 }
 
-export type RoutePath = string | RegExp;
-
 export class RouteTable {
-  private expressRouter = express.Router();
+  private router = express.Router();
 
   mapResource<TResponseBody>(method: HttpMethod, path: RoutePath, handler: RouteResourceHandler<any, TResponseBody>): void;
   mapResource<TRequestBody, TResponseBody>(method: HttpMethod, path: RoutePath, handler: RouteResourceHandler<TRequestBody, TResponseBody>): void {
@@ -52,16 +52,16 @@ export class RouteTable {
     };
     switch (method) {
       case "GET":
-        this.expressRouter.get(path, expressHandler);
+        this.router.get(path, expressHandler);
         break;
       case "POST":
-        this.expressRouter.post(path, expressHandler);
+        this.router.post(path, expressHandler);
         break;
       case "PUT":
-        this.expressRouter.put(path, expressHandler);
+        this.router.put(path, expressHandler);
         break;
       case "DELETE":
-        this.expressRouter.delete(path, expressHandler);
+        this.router.delete(path, expressHandler);
         break;
       default:
         throw new Error(`Unknown HttpMethod '${method}'`);
@@ -69,7 +69,7 @@ export class RouteTable {
   }
 
   middleware(): express.Handler {
-    return this.expressRouter;
+    return this.router;
   }
 
   private createContext(req: express.Request, res: express.Response): RouteContext {
