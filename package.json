@@ -1,0 +1,25 @@
+{
+  "name": "idman",
+  "version": "0.0.0",
+  "description": "Identity management service",
+  "author": "Robert Macfie <robert@macfie.se>",
+  "private": true,
+  "main": "src/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node src/server.js",
+    "watch": "concurrently  -p \"[{name}]\" -n \"tsc,app\" -c \"blue,cyan\" \"tsc -w\" \"nodemon --delay 1\"",
+    "test": "mocha test/**/*.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0"
+  },
+  "devDependencies": {
+    "@types/body-parser": "0.0.33",
+    "@types/express": "^4.0.33",
+    "concurrently": "^3.1.0",
+    "nodemon": "^1.11.0",
+    "typescript": "^2.0.6"
+  }
+}
