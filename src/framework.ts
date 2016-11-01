@@ -1,4 +1,5 @@
 import * as express from "express";
+import * as log from "winston";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -50,7 +51,7 @@ export class RouteTable {
       const ctx = this.createContext(req, res);
       handler(ctx).catch(next);
     };
-    console.log(`[routes] mapping ${method} ${path}`);
+    log.info(`[routes] mapping ${method} ${path}`);
     switch (method) {
       case "GET":
         this.router.get(path, expressHandler);

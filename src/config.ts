@@ -1,3 +1,4 @@
+import * as log from "winston";
 const devenv = tryRequire("../devenv.json") || {};
 
 class Config {
@@ -8,16 +9,16 @@ export default new Config();
 
 function env<T>(key: string, fallback?: T): T {
   if (process.env[key]) {
-    console.log(`[config] process env: ${key}`);
+    log.info(`[config] process env: ${key}`);
     return process.env[key] as T;
   } else if (devenv[key]) {
-    console.log(`[config]     dev env: ${key}`);
+    log.info(`[config]     dev env: ${key}`);
     return devenv[key] as T;
   } else if (fallback) {
-    console.log(`[config] default env: ${key}`);
+    log.info(`[config] default env: ${key}`);
     return fallback;
   } else {
-    console.log(`[config]   undefined: ${key}`);
+    log.info(`[config]   undefined: ${key}`);
     return <any>undefined;
   }
 }
