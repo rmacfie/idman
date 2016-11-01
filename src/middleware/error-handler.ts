@@ -1,5 +1,5 @@
 import * as express from "express";
-import { HttpError } from "../routing";
+import { HttpError } from "../framework";
 
 export default function (): express.ErrorRequestHandler {
   return (err, req, res, next) => {
@@ -7,7 +7,11 @@ export default function (): express.ErrorRequestHandler {
       res.status(err.status);
       res.send(err.message);
     } else {
-      next(err);
+      res.status(err.status || 500);
+      res.json({
+        message: err.message,
+        error: err,
+      });
     }
   };
 }
