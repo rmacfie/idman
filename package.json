@@ -6,7 +6,7 @@
   "private": true,
   "main": "src/server.js",
   "scripts": {
-    "clean": "del ./src/**/*.js ./test/**/*.js",
+    "clean": "del ./src/**/*.js ./test/**/*.js ./src/**/*.js.map ./test/**/*.js.map",
     "build": "tsc",
     "start": "node src/server.js",
     "watch": "concurrently  -p \"[{name}]\" -n \"tsc,app\" -c \"blue,cyan\" \"tsc -w\" \"nodemon --delay 1\"",

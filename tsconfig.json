@@ -9,7 +9,8 @@
     "noImplicitReturns": true,
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
-    "sourceMap": false
+    "sourceMap": false,
+    "inlineSourceMap": true
   },
   "exclude": [
     "node_modules"

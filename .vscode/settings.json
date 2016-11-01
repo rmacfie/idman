@@ -2,7 +2,9 @@
   "files.exclude": {
     "**/.git": true,
     "**/src/**/*.js": true,
+    "**/src/**/*.js.map": true,
     "**/test/**/*.js": true,
+    "**/test/**/*.js.map": true,
     "**/.DS_Store": true
   },
   "editor.detectIndentation": false,
