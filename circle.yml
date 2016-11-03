@@ -16,11 +16,14 @@ database:
 dependencies:
   override:
     - npm install
+    - npm install mocha-junit-reporter
     - sed -i -e "s/0.0.0/${APP_VERSION}/g" package.json
 
 test:
   override:
-    - npm test
+    - npm test -- --reporter mocha-junit-reporter:
+        environment:
+          MOCHA_FILE: $CIRCLE_TEST_REPORTS/junit/test-results.xml
 
 deployment:
   docker_hub:
