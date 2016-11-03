@@ -1,0 +1,35 @@
+machine:
+  services:
+    - docker
+  node:
+    version: 6.1.0
+  environment:
+    APP_VERSION: 0.1.${CIRCLE_BUILD_NUM}
+    DOCKER_NAME_VERSIONED: rmacfie/idman:${APP_VERSION}
+    DOCKER_NAME_LATEST: rmacfie/idman:latest
+    POSTGRES_URL: postgres://ubuntu:@localhost/circle_test
+
+database:
+  override:
+    - psql -U ubuntu -f schema.sql circle_test
+
+dependencies:
+  override:
+    - npm install
+    - sed -i -e "s/0.0.0/${APP_VERSION}/g" package.json
+
+test:
+  override:
+    - npm test
+
+deployment:
+  docker_hub:
+    branch: master
+    commands:
+      - npm prune --production
+      - docker build --rm=false -t idman .
+      - docker tag idman $DOCKER_NAME_VERSIONED
+      - docker tag idman $DOCKER_NAME_LATEST
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker push $DOCKER_NAME_VERSIONED
+      - docker push $DOCKER_NAME_LATEST

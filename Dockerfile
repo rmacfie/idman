@@ -2,7 +2,7 @@ FROM mhart/alpine-node:6.9.1
 MAINTAINER Robert Macfie <robert@macfie.se>
 
 WORKDIR /app
-COPY dist /app
+COPY . /app
 
 ENV NODE_ENV=production
 ENV PORT=80
