@@ -26,7 +26,6 @@ function routes() {
   const routeTable = new RouteTable();
   const routesPath = path.join(__dirname, "routes");
   fs.readdirSync(routesPath).filter(f => f.endsWith(".js")).forEach(f => {
-    log.info(`[app] loading routes from ${f}`);
     require(`./routes/${f}`).route(routeTable);
   });
   return routeTable.middleware();

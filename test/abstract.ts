@@ -1,4 +1,5 @@
 import * as winston from "winston";
+import * as superagent from "superagent";
 
 winston.configure({
   transports: [
@@ -9,6 +10,9 @@ winston.configure({
 import * as supertestAsPromised from "supertest-as-promised";
 import App from "../src/app";
 
-export function supertester() {
-  return supertestAsPromised(App());
+export interface Response extends superagent.Response {
+}
+
+export function supertester(): supertestAsPromised.SuperTest<supertestAsPromised.Test> {
+  return (<any>supertestAsPromised)(Promise)(App());
 }

@@ -3,6 +3,8 @@ const devenv = tryRequire("../devenv.json") || {};
 
 class Config {
   readonly port = env<number>("PORT", 10001);
+  readonly jwtSecret = env<string>("JWT_SECRET", "FW8z1Yw4rVUl2aPm1mIhlN00kqQYqDuVkXuikPtwXiX51eW6iVnNsXpOH4yL9vye");
+  readonly postgresUrl = env<string>("POSTGRES_URL", "postgres://idman:idman@localhost/idman");
 }
 
 export default new Config();
