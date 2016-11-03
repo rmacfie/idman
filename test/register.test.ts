@@ -9,7 +9,7 @@ describe(`/api/register`, () => {
     testInput = { email: `test-register@example.com`, password: `hunter22` };
   });
 
-  it(`returns 200`, async () => {
+  it(`returns 201`, async () => {
     await context.cleanAccountByEmail(testInput.email);
 
     const response = await context.supertester().post(`/api/register`).send(testInput);

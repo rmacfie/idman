@@ -24,6 +24,7 @@ interface SessionRow {
   created: Date;
   accountid: number;
   expires: Date;
+  expired: boolean;
   data: SessionRowData
 }
 
@@ -40,6 +41,7 @@ interface LoginRow {
   created: Date;
   sessionid: number;
   expires: Date;
+  expired: boolean;
   data: LoginRowData
 }
 
@@ -64,6 +66,16 @@ export async function findAccountByEmail(email: string): Promise<AccountDto> {
     FROM accounts
     WHERE lower(data->>'email') = lower($1)`,
     [email]
+  );
+  return row ? mapAccount(row) : undefined;
+}
+
+export async function findAccountById(accountId: number): Promise<AccountDto> {
+  const row = await postgres.first<AccountRow>(
+    `SELECT *
+    FROM accounts
+    WHERE id = $1`,
+    [accountId]
   );
   return row ? mapAccount(row) : undefined;
 }
@@ -110,7 +122,7 @@ export async function updateAccountConfirmEmail(emailConfirmationToken: string):
 
 export async function findSessionByRefresh(refresh: string): Promise<SessionDto> {
   const row = await postgres.first<SessionRow>(
-    `SELECT *
+    `SELECT *, expires < now() AS expired
     FROM sessions
     WHERE data->>'refresh' = $1`,
     [refresh]
@@ -134,18 +146,18 @@ export async function insertSessionAndLogin(accountId: number, refresh: string, 
     `WITH ins_sessions AS (
       INSERT INTO sessions (accountid, expires, data)
       VALUES ($1, now() + $2 * interval '1 seconds', $3)
-      RETURNING *
+      RETURNING *, expires < now() AS expired
     ), ins_logins AS (
       INSERT INTO logins (sessionid, expires, data)
       SELECT s.id, now() + $4 * interval '1 seconds', $5
       FROM ins_sessions s
-      RETURNING *
+      RETURNING *, expires < now() AS expired
     )
     SELECT l.* FROM ins_logins l`,
     [accountId, expiresIn, sessionData, loginExpiresIn, loginData]
   );
   const sessionRow = await postgres.first<SessionRow>(
-    `SELECT * FROM sessions WHERE id = $1`,
+    `SELECT *, expires < now() AS expired FROM sessions WHERE id = $1`,
     [loginRow.sessionid]
   );
   return {
@@ -162,6 +174,20 @@ export async function updateSessionBlocked(id: number, reason: string): Promise<
     [id, { blocked: true, blockedReason: reason }]
   );
   return affectedRows > 0;
+}
+
+export async function insertLogin(sessionId: number, nonce: string, expiresIn: number, device: string): Promise<LoginDto> {
+  const data: LoginRowData = {
+    nonce: nonce,
+    device: device,
+  };
+  const loginRow = await postgres.first<LoginRow>(
+    `INSERT INTO logins (sessionid, expires, data)
+    VALUES ($1, now() + $2 * interval '1 seconds', $3)
+    RETURNING *, expires < now() AS expired`,
+    [sessionId, expiresIn, data]
+  );
+  return mapLogin(loginRow);
 }
 
 function mapAccount(row: AccountRow): AccountDto {
@@ -181,6 +207,7 @@ function mapSession(row: SessionRow): SessionDto {
     created: row.created,
     accountId: row.accountid,
     expires: row.expires,
+    expired: row.expired,
     blocked: row.data.blocked,
     blockedReason: row.data.blockedReason,
     refresh: row.data.refresh,
@@ -195,6 +222,7 @@ function mapLogin(row: LoginRow): LoginDto {
     created: row.created,
     sessionId: row.sessionid,
     expires: row.expires,
+    expired: row.expired,
     nonce: row.data.nonce,
     device: row.data.device,
   };

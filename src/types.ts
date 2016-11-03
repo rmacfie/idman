@@ -24,6 +24,7 @@ export interface SessionDto {
   created: Date;
   accountId: number;
   expires: Date;
+  expired: boolean;
   blocked: boolean;
   blockedReason: string;
   refresh: string;
@@ -36,6 +37,7 @@ export interface LoginDto {
   created: Date;
   sessionId: number;
   expires: Date;
+  expired: boolean;
   nonce: string;
   device: string;
 }
@@ -92,6 +94,14 @@ export interface SigninOutput extends AccessDto {
 
 export interface SignoutInput {
   refreshToken: string;
+}
+
+export interface RefreshInput {
+  refreshToken: string;
+  device: string;
+}
+
+export interface RefreshOutput extends AccessDto {
 }
 
 export interface VerifyInput {
