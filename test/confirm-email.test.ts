@@ -1,48 +1,32 @@
 import { assert } from "chai";
 import * as context from "./context";
-import * as validator from "../src/helpers/validator";
-import * as register from "../src/routes/register";
+import { RegisterInput, ValidationErrorDto } from "../src/types";
 
 describe(`/api/confirm-email`, () => {
-  const testRegisterInput: register.Input = {
-    email: `test-confirm-email@example.com`,
-    password: `hunter22`,
-  };
-
-  let token: string;
+  let testRegisterInput: RegisterInput;
+  let emailConfirmationToken: string;
 
   beforeEach(async () => {
+    testRegisterInput = { email: `test-confirm-email@example.com`, password: `hunter22` };
     await context.cleanAccountByEmail(testRegisterInput.email);
-    token = (await context.supertester().post(`/api/register`).send(testRegisterInput)).body.emailConfirmationToken;
+    emailConfirmationToken = (await context.supertester().post(`/api/register`).send(testRegisterInput)).body.emailConfirmationToken;
   });
 
   describe(`on success`, () => {
-    let response: context.Response;
-
-    beforeEach(async () => {
-      response = await context.supertester().post(`/api/confirm-email`).send({ token: token });
-    });
-
-    it(`returns status 200`, async () => {
+    it(`returns 200`, async () => {
+      const response = await context.supertester().post(`/api/confirm-email`).send({ token: emailConfirmationToken });
       assert.equal(response.status, 200);
     });
   });
 
-  describe(`on duplicate call`, () => {
-    let response: context.Response;
-    let body: validator.ViolationCollection;
+  describe(`on error`, () => {
+    it(`returns 400 when already confirmed`, async () => {
+      await context.supertester().post(`/api/confirm-email`).send({ token: emailConfirmationToken });
 
-    before(async () => {
-      await context.supertester().post(`/api/confirm-email`).send({ token: token });
-      response = await context.supertester().post(`/api/confirm-email`).send({ token: token });
-      body = response.body as validator.ViolationCollection;
-    });
+      const response = await context.supertester().post(`/api/confirm-email`).send({ token: emailConfirmationToken });
+      const body = response.body as ValidationErrorDto;
 
-    it(`returns status 400`, async () => {
       assert.equal(response.status, 400);
-    });
-
-    it(`returns violation info`, async () => {
       assert.equal(body[`token`][0].code, `exists`);
     });
   });

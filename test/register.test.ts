@@ -1,34 +1,24 @@
 import { assert } from "chai";
 import * as context from "./context";
-import * as validator from "../src/helpers/validator";
-import * as register from "../src/routes/register";
+import { RegisterInput, RegisterOutput, ValidationErrorDto } from "../src/types";
 
 describe(`/api/register`, () => {
-  let testInput: register.Input;
+  let testInput: RegisterInput;
 
   beforeEach(async () => {
     testInput = { email: `test-register@example.com`, password: `hunter22` };
   });
 
   describe(`on success`, () => {
-    let response: context.Response;
-    let body: register.Output;
-
-    beforeEach(async () => {
+    it(`returns 200`, async () => {
       await context.cleanAccountByEmail(testInput.email);
-      response = await context.supertester().post(`/api/register`).send(testInput);
-      body = response.body as register.Output;
-    });
 
-    it(`returns status 201`, async () => {
+      const response = await context.supertester().post(`/api/register`).send(testInput);
+      const body = response.body as RegisterOutput;
+
       assert.equal(response.status, 201);
-    });
-
-    it(`returns location header`, async () => {
       assert.equal(response.header[`location`], `/api/accounts/${body.id}`);
-    });
 
-    it(`returns the new account`, async () => {
       assert.isAtLeast(body.id, 1);
       assert.approximately(new Date(body.created).getTime(), new Date().getTime(), 100);
       assert.equal(body.email, testInput.email);
@@ -39,99 +29,57 @@ describe(`/api/register`, () => {
     });
   });
 
-  describe(`when email is already registered`, () => {
-    let response: context.Response;
-    let body: validator.ViolationCollection;
-
-    beforeEach(async () => {
+  describe(`on error`, () => {
+    it(`returns 400 when email is already registered`, async () => {
       await context.cleanAccountByEmail(testInput.email);
       await context.supertester().post(`/api/register`).send(testInput);
-      response = await context.supertester().post(`/api/register`).send(testInput);
-      body = response.body as validator.ViolationCollection;
-    });
 
-    it(`returns status 400`, async () => {
+      const response = await context.supertester().post(`/api/register`).send(testInput);
+      const body = response.body as ValidationErrorDto;
+
       assert.equal(response.status, 400);
-    });
-
-    it(`returns violation info`, async () => {
       assert.equal(body[`email`][0].code, `isEmailAvailable`);
     });
-  });
 
-  describe(`when email is not an email address`, () => {
-    let response: context.Response;
-    let body: validator.ViolationCollection;
-
-    beforeEach(async () => {
+    it(`returns 400 when email is not an email address`, async () => {
       testInput.email = `not_an_email.com`;
-      response = await context.supertester().post(`/api/register`).send(testInput);
-      body = response.body as validator.ViolationCollection;
-    });
 
-    it(`returns status 400`, async () => {
+      const response = await context.supertester().post(`/api/register`).send(testInput);
+      const body = response.body as ValidationErrorDto;
+
       assert.equal(response.status, 400);
-    });
-
-    it(`returns violation info`, async () => {
       assert.equal(body[`email`][0].code, `isEmail`);
     });
-  });
 
-  describe(`when email is empty`, () => {
-    let response: context.Response;
-    let body: validator.ViolationCollection;
-
-    beforeEach(async () => {
+    it(`returns 400 when email is empty`, async () => {
       testInput.email = ``;
-      response = await context.supertester().post(`/api/register`).send(testInput);
-      body = response.body as validator.ViolationCollection;
-    });
 
-    it(`returns status 400`, async () => {
+      const response = await context.supertester().post(`/api/register`).send(testInput);
+      const body = response.body as ValidationErrorDto;
+
       assert.equal(response.status, 400);
-    });
-
-    it(`returns violation info`, async () => {
       assert.equal(body[`email`][0].code, `required`);
     });
-  });
 
-  describe(`when password is too short`, () => {
-    let response: context.Response;
-    let body: validator.ViolationCollection;
-
-    beforeEach(async () => {
+    it(`returns 400 when password is too short`, async () => {
       testInput.password = `hunte2`;
-      response = await context.supertester().post(`/api/register`).send(testInput);
-      body = response.body as validator.ViolationCollection;
-    });
 
-    it(`returns status 400`, async () => {
+      const response = await context.supertester().post(`/api/register`).send(testInput);
+      const body = response.body as ValidationErrorDto;
+
       assert.equal(response.status, 400);
-    });
-
-    it(`returns violation info`, async () => {
       assert.equal(body[`password`][0].code, `isLength`);
     });
-  });
 
-  describe(`when password is empty`, () => {
-    let response: context.Response;
-    let body: validator.ViolationCollection;
-
-    beforeEach(async () => {
+    it(`returns 400 when password is empty`, async () => {
       testInput.password = ``;
-      response = await context.supertester().post(`/api/register`).send(testInput);
-      body = response.body as validator.ViolationCollection;
-    });
 
-    it(`returns status 400`, async () => {
+      const response = await context.supertester().post(`/api/register`).send(testInput);
+      const body = response.body as ValidationErrorDto;
+
       assert.equal(response.status, 400);
-    });
-
-    it(`returns violation info`, async () => {
       assert.equal(body[`password`][0].code, `required`);
     });
   });
+
 });

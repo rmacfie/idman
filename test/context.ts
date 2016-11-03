@@ -18,7 +18,29 @@ export function supertester(): supertestAsPromised.SuperTest<supertestAsPromised
   return (<any>supertestAsPromised)(Promise)(App());
 }
 
-export async function cleanAccountByEmail(email: string): Promise<boolean> {
-  const affectedRows = await postgres.execute(`DELETE FROM accounts WHERE lower(data->>'email') = $1`, [email]);
-  return affectedRows > 0;
+export async function cleanAccountByEmail(email: string): Promise<void> {
+  await postgres.execute(
+    `DELETE FROM logins l
+      WHERE l.sessionid IN (
+        SELECT s.id
+        FROM sessions s
+        INNER JOIN accounts a ON s.accountid = a.id
+        WHERE lower(a.data->>'email') = $1
+      )`,
+    [email]
+  );
+  await postgres.execute(
+    `DELETE FROM sessions s
+      WHERE s.accountid IN (
+        SELECT a.id
+        FROM accounts a
+        WHERE lower(a.data->>'email') = $1
+      )`,
+    [email]
+  );
+  await postgres.execute(
+    `DELETE FROM accounts a
+      WHERE lower(a.data->>'email') = $1`,
+    [email]
+  );
 }

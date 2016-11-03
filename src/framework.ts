@@ -1,5 +1,6 @@
 import * as express from "express";
 import * as log from "winston";
+import { ValidationErrorDto } from "./types";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -7,6 +8,22 @@ export class HttpError extends Error {
   constructor(public status: number, message?: string) {
     super();
     this.message = message || "";
+  }
+}
+
+export class ValidationError extends Error {
+  error: ValidationErrorDto;
+
+  constructor(dto: ValidationErrorDto);
+  constructor(key: string, code: string, message: string);
+  constructor(a1: any, a2?: any, a3?: any) {
+    super("Validation failed");
+    if (typeof a1 === "object" && a2 === undefined && a3 === undefined) {
+      this.error = a1;
+    } else if (typeof a1 === "string" && typeof a2 === "string" && typeof a3 === "string") {
+      this.error = {};
+      this.error[a1] = [{ code: a2, message: a3 }];
+    }
   }
 }
 

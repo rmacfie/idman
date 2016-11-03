@@ -1,19 +1,12 @@
 import { RouteTable } from "../framework";
+import { RegisterInput, RegisterOutput } from "../types";
 import * as cryption from "../helpers/cryption";
 import * as validator from "../helpers/validator";
 import * as model from "../services/model";
 
-export interface Input {
-  email: string;
-  password: string;
-}
-
-export interface Output extends model.AccountDto {
-}
-
 export function route(routes: RouteTable) {
-  routes.mapResource("POST", "/api/register", async (ctx): Promise<Output> => {
-    const input = ctx.request.body as Input;
+  routes.mapResource("POST", "/api/register", async (ctx): Promise<RegisterOutput> => {
+    const input = ctx.request.body as RegisterInput;
 
     await validator.validate(input, {
       "email": [
@@ -23,7 +16,7 @@ export function route(routes: RouteTable) {
       ],
       "password": [
         validator.required("Password is required"),
-        validator.isLength(7, 256, "Password must be at least 7 characters long")
+        validator.isLength(7, 256, "Password must be at least 7 characters long"),
       ]
     });
 

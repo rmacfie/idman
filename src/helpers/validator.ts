@@ -1,4 +1,6 @@
 import * as validator from "validator";
+import { ValidationError } from "../framework";
+import { ValidationErrorDto, ValidationErrorItem } from "../types";
 
 export function required(message: string): Rule {
   return {
@@ -48,31 +50,6 @@ export function custom(code: string, message: string, check: (value?: any) => Pr
   };
 }
 
-export class ValidationError extends Error {
-  violations: ViolationCollection;
-
-  constructor(violations: ViolationCollection);
-  constructor(key: string, code: string, message: string);
-  constructor(a1: any, a2?: any, a3?: any) {
-    super("Validation failed");
-    if (typeof a1 === "object" && a2 === undefined && a3 === undefined) {
-      this.violations = a1;
-    } else if (typeof a1 === "string" && typeof a2 === "string" && typeof a3 === "string") {
-      this.violations = {};
-      this.violations[a1] = [ { code: a2, message: a3 } ];
-    }
-  }
-}
-
-export interface Violation {
-  code: string;
-  message: string;
-}
-
-export interface ViolationCollection {
-  [key: string]: Violation[];
-}
-
 export interface Rule {
   check: (value: any) => Promise<boolean>;
   code: string;
@@ -108,18 +85,18 @@ export async function validate(target: Object, ruleCollection: RuleCollection): 
   }));
 
   if (failedRules.length > 0) {
-    const violations: ViolationCollection = {};
+    const dto: ValidationErrorDto = {};
 
     failedRules.forEach(r => {
-      if (!violations[r.key]) {
-        violations[r.key] = [];
+      if (!dto[r.key]) {
+        dto[r.key] = [];
       }
-      violations[r.key].push({
+      dto[r.key].push({
         code: r.rule.code,
         message: r.rule.message,
       });
     });
 
-    throw new ValidationError(violations);
+    throw new ValidationError(dto);
   }
 }
