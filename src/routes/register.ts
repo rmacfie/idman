@@ -1,12 +1,12 @@
 import * as cryption from "../helpers/cryption";
 import * as validator from "../helpers/validator";
-import { RouteTable } from "../framework";
-import { RegisterInput, RegisterOutput } from "../types";
+import * as framework from "../framework";
 import * as model from "../model";
+import * as types from "../types";
 
-export function route(routes: RouteTable) {
-  routes.mapResource("POST", "/api/register", async (ctx): Promise<RegisterOutput> => {
-    const input = ctx.request.body as RegisterInput;
+export function route(routes: framework.RouteTable) {
+  routes.mapResource("POST", "/api/register", async (ctx): Promise<types.RegisterOutput> => {
+    const input = ctx.request.body as types.RegisterInput;
 
     await validator.validate(input, {
       "email": [

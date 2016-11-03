@@ -1,9 +1,9 @@
 import { assert } from "chai";
 import * as context from "./context";
-import { RegisterInput, RegisterOutput, ValidationErrorDto } from "../src/types";
+import * as types from "../src/types";
 
 describe(`/api/register`, () => {
-  let testInput: RegisterInput;
+  let testInput: types.RegisterInput;
 
   beforeEach(async () => {
     testInput = { email: `test-register@example.com`, password: `hunter22` };
@@ -13,7 +13,7 @@ describe(`/api/register`, () => {
     await context.cleanAccountByEmail(testInput.email);
 
     const response = await context.supertester().post(`/api/register`).send(testInput);
-    const body = response.body as RegisterOutput;
+    const body = response.body as types.RegisterOutput;
 
     assert.equal(response.status, 201);
     assert.equal(response.header[`location`], `/api/accounts/${body.id}`);
@@ -32,7 +32,7 @@ describe(`/api/register`, () => {
     await context.supertester().post(`/api/register`).send(testInput);
 
     const response = await context.supertester().post(`/api/register`).send(testInput);
-    const body = response.body as ValidationErrorDto;
+    const body = response.body as types.ValidationErrorDto;
 
     assert.equal(response.status, 400);
     assert.equal(body[`email`][0].code, `emailAvailability`);
@@ -42,7 +42,7 @@ describe(`/api/register`, () => {
     testInput.email = `not_an_email.com`;
 
     const response = await context.supertester().post(`/api/register`).send(testInput);
-    const body = response.body as ValidationErrorDto;
+    const body = response.body as types.ValidationErrorDto;
 
     assert.equal(response.status, 400);
     assert.equal(body[`email`][0].code, `email`);
@@ -52,7 +52,7 @@ describe(`/api/register`, () => {
     testInput.email = ``;
 
     const response = await context.supertester().post(`/api/register`).send(testInput);
-    const body = response.body as ValidationErrorDto;
+    const body = response.body as types.ValidationErrorDto;
 
     assert.equal(response.status, 400);
     assert.equal(body[`email`][0].code, `required`);
@@ -62,7 +62,7 @@ describe(`/api/register`, () => {
     testInput.password = `hunte2`;
 
     const response = await context.supertester().post(`/api/register`).send(testInput);
-    const body = response.body as ValidationErrorDto;
+    const body = response.body as types.ValidationErrorDto;
 
     assert.equal(response.status, 400);
     assert.equal(body[`password`][0].code, `length`);
@@ -72,7 +72,7 @@ describe(`/api/register`, () => {
     testInput.password = ``;
 
     const response = await context.supertester().post(`/api/register`).send(testInput);
-    const body = response.body as ValidationErrorDto;
+    const body = response.body as types.ValidationErrorDto;
 
     assert.equal(response.status, 400);
     assert.equal(body[`password`][0].code, `required`);

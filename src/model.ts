@@ -101,11 +101,21 @@ export async function insertAccount(email: string, password: string, emailConfir
 export async function updateAccountConfirmEmail(emailConfirmationToken: string): Promise<boolean> {
   const affectedRows = await postgres.execute(
     `UPDATE accounts
-    SET data = jsonb_set(data, '{emailConfirmed}', 'true')
+    SET data = data || '{ "emailConfirmed": true }'
     WHERE  data->>'emailConfirmed' = 'false' AND data->>'emailConfirmationToken' = $1`,
     [emailConfirmationToken]
   );
   return affectedRows > 0;
+}
+
+export async function findSessionByRefresh(refresh: string): Promise<SessionDto> {
+  const row = await postgres.first<SessionRow>(
+    `SELECT *
+    FROM sessions
+    WHERE data->>'refresh' = $1`,
+    [refresh]
+  );
+  return row ? mapSession(row) : undefined;
 }
 
 export async function insertSessionAndLogin(accountId: number, refresh: string, expiresIn: number, type: string, device: string, loginNonce: string, loginExpiresIn: number): Promise<SessionAndLoginDto> {
@@ -142,6 +152,16 @@ export async function insertSessionAndLogin(accountId: number, refresh: string, 
     session: mapSession(sessionRow),
     login: mapLogin(loginRow),
   };
+}
+
+export async function updateSessionBlocked(id: number, reason: string): Promise<boolean> {
+  const affectedRows = await postgres.execute(
+    `UPDATE sessions
+    SET data = data || $2
+    WHERE id = $1`,
+    [id, { blocked: true, blockedReason: reason }]
+  );
+  return affectedRows > 0;
 }
 
 function mapAccount(row: AccountRow): AccountDto {

@@ -1,9 +1,9 @@
 import { assert } from "chai";
 import * as context from "./context";
-import { RegisterInput, ValidationErrorDto } from "../src/types";
+import * as types from "../src/types";
 
 describe(`/api/confirm-email`, () => {
-  let testRegisterInput: RegisterInput;
+  let testRegisterInput: types.RegisterInput;
   let emailConfirmationToken: string;
 
   beforeEach(async () => {
@@ -21,7 +21,7 @@ describe(`/api/confirm-email`, () => {
     await context.supertester().post(`/api/confirm-email`).send({ token: emailConfirmationToken });
 
     const response = await context.supertester().post(`/api/confirm-email`).send({ token: emailConfirmationToken });
-    const body = response.body as ValidationErrorDto;
+    const body = response.body as types.ValidationErrorDto;
 
     assert.equal(response.status, 400);
     assert.equal(body[`token`][0].code, `exists`);

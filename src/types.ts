@@ -79,14 +79,18 @@ export interface ConfirmEmailInput {
   token: string;
 }
 
-export interface LoginInput {
+export interface SigninInput {
   email: string;
   password: string;
   type: SessionType;
   device: string;
 }
 
-export interface LoginOutput extends AccessDto {
+export interface SigninOutput extends AccessDto {
+  refreshToken: string;
+}
+
+export interface SignoutInput {
   refreshToken: string;
 }
 

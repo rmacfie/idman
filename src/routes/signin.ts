@@ -2,13 +2,13 @@ import * as cryption from "../helpers/cryption";
 import * as time from "../helpers/time";
 import * as validator from "../helpers/validator";
 import config from "../config";
-import { RouteTable, HttpError, ValidationError } from "../framework";
-import { LoginInput, LoginOutput, SessionType, AccessToken } from "../types";
+import * as framework from "../framework";
 import * as model from "../model";
+import * as types from "../types";
 
-export function route(routes: RouteTable) {
-  routes.mapResource("POST", "/api/login", async (ctx): Promise<LoginOutput> => {
-    const input = ctx.request.body as LoginInput;
+export function route(routes: framework.RouteTable) {
+  routes.mapResource("POST", "/api/signin", async (ctx): Promise<types.SigninOutput> => {
+    const input = ctx.request.body as types.SigninInput;
 
     await validator.validate(input, {
       "email": [
@@ -19,20 +19,20 @@ export function route(routes: RouteTable) {
       ],
       "type": [
         validator.required("Type is required"),
-        validator.isOneOf<SessionType>(["cookie"], "Type must be 'cookie'"),
+        validator.isOneOf<types.SessionType>(["cookie"], "Type must be 'cookie'"),
       ],
     });
 
     const account = await model.findAccountByCredentials(input.email, input.password);
 
     if (!account) {
-      throw new ValidationError(`*`, `credentials`, `Email and password did not match any account`);
+      throw new framework.ValidationError(`*`, `credentials`, `Email and password did not match any account`);
     }
     if (!account.emailConfirmed) {
-      throw new ValidationError(`*`, `emailConfirmation`, `The account is not activated yet`);
+      throw new framework.ValidationError(`*`, `emailConfirmation`, `The account is not activated yet`);
     }
     if (account.blocked) {
-      throw new HttpError(403, `The account is disabled`);
+      throw new framework.HttpError(403, `The account is disabled`);
     }
 
     const refreshToken = await cryption.randomString(32);
@@ -46,7 +46,7 @@ export function route(routes: RouteTable) {
       loginNonce,
       config.loginExpirySeconds,
     );
-    const accessToken: AccessToken = {
+    const accessToken: types.AccessToken = {
       id: account.id,
       email: account.email,
       aud: config.jwtAudience,
