@@ -89,3 +89,10 @@ export interface LoginInput {
 export interface LoginOutput extends AccessDto {
   refreshToken: string;
 }
+
+export interface VerifyInput {
+  accessToken: string;
+}
+
+export interface VerifyOutput extends AccessToken {
+}

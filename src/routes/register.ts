@@ -1,8 +1,8 @@
-import { RouteTable } from "../framework";
-import { RegisterInput, RegisterOutput } from "../types";
 import * as cryption from "../helpers/cryption";
 import * as validator from "../helpers/validator";
-import * as model from "../services/model";
+import { RouteTable } from "../framework";
+import { RegisterInput, RegisterOutput } from "../types";
+import * as model from "../model";
 
 export function route(routes: RouteTable) {
   routes.mapResource("POST", "/api/register", async (ctx): Promise<RegisterOutput> => {
@@ -12,7 +12,7 @@ export function route(routes: RouteTable) {
       "email": [
         validator.required("Email is required"),
         validator.isEmail("Email must be a valid email adress"),
-        validator.custom(`isEmailAvailable`, `Email is already registered`, isEmailAvailable),
+        validator.custom(`emailAvailability`, `Email is already registered`, isEmailAvailable),
       ],
       "password": [
         validator.required("Password is required"),

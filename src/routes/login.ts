@@ -1,10 +1,10 @@
-import { RouteTable, HttpError, ValidationError } from "../framework";
-import { LoginInput, LoginOutput, SessionType, AccessToken } from "../types";
-import config from "../config";
 import * as cryption from "../helpers/cryption";
 import * as time from "../helpers/time";
 import * as validator from "../helpers/validator";
-import * as model from "../services/model";
+import config from "../config";
+import { RouteTable, HttpError, ValidationError } from "../framework";
+import { LoginInput, LoginOutput, SessionType, AccessToken } from "../types";
+import * as model from "../model";
 
 export function route(routes: RouteTable) {
   routes.mapResource("POST", "/api/login", async (ctx): Promise<LoginOutput> => {
@@ -29,7 +29,7 @@ export function route(routes: RouteTable) {
       throw new ValidationError(`*`, `credentials`, `Email and password did not match any account`);
     }
     if (!account.emailConfirmed) {
-      throw new ValidationError(`*`, `emailConfirmed`, `The account is not activated yet`);
+      throw new ValidationError(`*`, `emailConfirmation`, `The account is not activated yet`);
     }
     if (account.blocked) {
       throw new HttpError(403, `The account is disabled`);

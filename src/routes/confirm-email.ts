@@ -1,7 +1,7 @@
+import * as validator from "../helpers/validator";
 import { RouteTable, ValidationError } from "../framework";
 import { ConfirmEmailInput } from "../types";
-import * as validator from "../helpers/validator";
-import * as model from "../services/model";
+import * as model from "../model";
 
 export function route(routes: RouteTable) {
   routes.mapResource("POST", `/api/confirm-email`, async (ctx): Promise<void> => {

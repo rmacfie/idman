@@ -14,7 +14,7 @@ export function required(message: string): Rule {
 
 export function isOneOf<T>(allowedValues: T[], message: string): Rule {
   return {
-    code: "isOneOf",
+    code: "enum",
     message: message,
     check: async (value: any) => {
       return validator.isIn("" + value, allowedValues.map(v => "" + v));
@@ -24,7 +24,7 @@ export function isOneOf<T>(allowedValues: T[], message: string): Rule {
 
 export function isEmail(message: string): Rule {
   return {
-    code: "isEmail",
+    code: "email",
     message: message,
     check: async (value: any) => {
       return validator.isEmail("" + value);
@@ -34,7 +34,7 @@ export function isEmail(message: string): Rule {
 
 export function isLength(min: number, max: number, message: string): Rule {
   return {
-    code: "isLength",
+    code: "length",
     message: message,
     check: async (value: any) => {
       return validator.isLength("" + value, { min: min, max: max });

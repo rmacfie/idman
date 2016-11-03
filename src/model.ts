@@ -1,6 +1,6 @@
-import * as cryption from "../helpers/cryption";
-import * as postgres from "../helpers/postgres";
-import { AccountDto, SessionDto, LoginDto, SessionAndLoginDto } from "../types";
+import * as cryption from "./helpers/cryption";
+import * as postgres from "./helpers/postgres";
+import { AccountDto, SessionDto, LoginDto, SessionAndLoginDto } from "./types";
 
 interface AccountRow {
   id: number;

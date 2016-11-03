@@ -24,7 +24,7 @@ describe(`/api/login`, () => {
     const body = response.body as ValidationErrorDto;
 
     assert.equal(response.status, 400);
-    assert.equal(body[`*`][0].code, `emailConfirmed`);
+    assert.equal(body[`*`][0].code, `emailConfirmation`);
   });
 
   describe(`with confirmed email`, () => {
