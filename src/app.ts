@@ -5,7 +5,7 @@ import * as bodyParser from "body-parser";
 import * as log from "winston";
 import requestLogger from "./middleware/request-logger";
 import errorHandler from "./middleware/error-handler";
-import notfoundHandler from "./middleware/error-handler";
+import notfoundHandler from "./middleware/notfound-handler";
 import { RouteTable } from "./framework";
 
 export default function () {
