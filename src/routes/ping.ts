@@ -3,14 +3,14 @@ import { RouteTable } from "../framework";
 
 const version = require("../../package.json").version;
 
-export interface PingResult {
+export interface Output {
   status: string;
   version: string;
   timestamp: Date;
 }
 
 export function route(routes: RouteTable) {
-  routes.mapResource("GET", "/api/ping", async (ctx): Promise<PingResult> => {
+  routes.mapResource("GET", "/api/ping", async (ctx): Promise<Output> => {
     return {
       status: "OK",
       version: version,

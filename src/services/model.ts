@@ -26,6 +26,16 @@ export async function isEmailAvailable(email: string): Promise<boolean> {
   return !row;
 }
 
+export async function updateAccountConfirmEmail(emailConfirmationToken: string): Promise<boolean> {
+  const affectedRows = await postgres.execute(
+    `UPDATE accounts
+    SET data = jsonb_set(data, '{emailConfirmed}', 'true')
+    WHERE  data->>'emailConfirmed' = 'false' AND data->>'emailConfirmationToken' = $1`,
+    [emailConfirmationToken]
+  );
+  return affectedRows > 0;
+}
+
 export async function insertAccount(email: string, password: string, emailConfirmationToken: string): Promise<AccountDto> {
   const passwordHash = await cryption.hashPassword(password);
   const data: AccountRowData = {

@@ -1,5 +1,6 @@
 import * as winston from "winston";
 import * as superagent from "superagent";
+import * as postgres from "../src/helpers/postgres";
 
 winston.configure({
   transports: [
@@ -15,4 +16,9 @@ export interface Response extends superagent.Response {
 
 export function supertester(): supertestAsPromised.SuperTest<supertestAsPromised.Test> {
   return (<any>supertestAsPromised)(Promise)(App());
+}
+
+export async function cleanAccountByEmail(email: string): Promise<boolean> {
+  const affectedRows = await postgres.execute(`DELETE FROM accounts WHERE lower(data->>'email') = $1`, [email]);
+  return affectedRows > 0;
 }
